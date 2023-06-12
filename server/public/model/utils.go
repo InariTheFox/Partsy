@@ -3,6 +3,7 @@ package model
 import (
 	"encoding/base32"
 	"encoding/json"
+	"unicode"
 
 	"github.com/pborman/uuid"
 )
@@ -31,6 +32,20 @@ func NewAppError(where string, id string, params map[string]any, details string,
 	}
 
 	return ap
+}
+
+func IsValidId(value string) bool {
+	if len(value) != 26 {
+		return false
+	}
+
+	for _, r := range value {
+		if !unicode.IsLetter(r) && !unicode.IsNumber(r) {
+			return false
+		}
+	}
+
+	return true
 }
 
 var encoding = base32.NewEncoding("ybndrfg8ejkmcpqxot1uwisza345h769").WithPadding(base32.NoPadding)

@@ -6,6 +6,7 @@ import (
 	"net/http"
 	"reflect"
 	"runtime"
+	"strconv"
 	"strings"
 
 	"github.com/inarithefox/partsy/server/app"
@@ -46,15 +47,16 @@ func GetHandlerName(h func(*Context, http.ResponseWriter, *http.Request)) string
 }
 
 func (h Handler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
-	appInstance := app.New(app.ServerConnector(h.Srv.Parts()))
+	w = NewWrappedWriter(w)
+	appInstance := app.New(app.ServerConnector(h.Srv))
 
 	requestId := model.NewId()
-	//var statusCode string
+	var statusCode string
 
 	ipAddress := utils.GetIPAddress(r)
 
 	defer func() {
-		logger.Debug(fmt.Sprintf("%s %s %s %d %s", ipAddress, r.URL.Path, r.Method, http.StatusNotFound, r.Proto))
+		logger.Debug(fmt.Sprintf("%s %s %s %s %s", ipAddress, r.URL.Path, r.Method, statusCode, r.Proto))
 	}()
 
 	c := &Context{
@@ -83,4 +85,6 @@ func (h Handler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	if c.Err == nil {
 		h.HandleFunc(c, w, r)
 	}
+
+	statusCode = strconv.Itoa(w.(*ResponseWriterWrapper).StatusCode())
 }

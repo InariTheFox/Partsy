@@ -38,7 +38,7 @@ func Init(srv *app.Server) (*Api, error) {
 	api.BaseRoutes.ApiRoot = srv.Router.PathPrefix(model.ApiURLSuffix).Subrouter()
 
 	api.BaseRoutes.Parts = api.BaseRoutes.ApiRoot.PathPrefix("/parts").Subrouter()
-	api.BaseRoutes.Part = api.BaseRoutes.Parts.PathPrefix("/{part_id:[A-Za-z0-9]}").Subrouter()
+	api.BaseRoutes.Part = api.BaseRoutes.Parts.PathPrefix("/{part_id:[A-Za-z0-9]+}").Subrouter()
 
 	api.InitParts()
 
@@ -48,6 +48,6 @@ func Init(srv *app.Server) (*Api, error) {
 }
 
 func (api *Api) HandleNotFound(w http.ResponseWriter, r *http.Request) {
-	app := app.New(app.ServerConnector(api.srv.Parts()))
+	app := app.New(app.ServerConnector(api.srv))
 	web.HandleNotFound(app, w, r)
 }

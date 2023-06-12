@@ -1,7 +1,9 @@
 package app
 
+import "github.com/inarithefox/partsy/server/public/logger"
+
 type App struct {
-	p *Parts
+	srv *Server
 }
 
 func New(options ...AppOption) *App {
@@ -11,9 +13,11 @@ func New(options ...AppOption) *App {
 		option(app)
 	}
 
+	logger.Debug("new application initialized")
+
 	return app
 }
 
 func (a *App) Srv() *Server {
-	return a.p.srv
+	return a.srv
 }

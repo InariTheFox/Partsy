@@ -16,5 +16,6 @@ type Store interface {
 type PartStore interface {
 	GetAllParts(page, pageSize int) (model.PartList, error)
 	GetAllPartsCount() (int64, error)
+	GetPart(partId string) (*model.Part, error)
 	Save(part *model.Part) (*model.Part, error)
 }

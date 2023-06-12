@@ -14,6 +14,7 @@ import (
 	"github.com/inarithefox/partsy/server/public/model"
 	"github.com/inarithefox/partsy/server/public/utils"
 	"github.com/inarithefox/partsy/server/store"
+	"github.com/inarithefox/partsy/server/store/memstore"
 	"github.com/pkg/errors"
 )
 
@@ -26,11 +27,10 @@ type Server struct {
 
 	configStore *config.Store
 
-	app             *App
 	config          *model.Config
 	didFinishListen chan struct{}
 	p               *Parts
-	store           *store.Store
+	store           store.Store
 }
 
 func NewServer(options ...Option) (*Server, error) {
@@ -53,17 +53,16 @@ func NewServer(options ...Option) (*Server, error) {
 
 	s.Router = s.RootRouter.PathPrefix(subpath).Subrouter()
 
-	// TODO: Initialize store
+	store := memstore.New()
 
-	_, err = NewParts(s)
+	p, err := NewParts(store)
 	if err != nil {
 		logger.Error(err, "unable to initialize part infrastructure")
 		return nil, errors.Wrap(err, "failed to initialize part infrastructure")
 	}
 
-	app := New(ServerConnector(s.Parts()))
-
-	s.app = app
+	s.p = p
+	s.store = store
 
 	logger.Info(fmt.Sprintf("Fox Labs Partsy - Version: %v", model.CurrentVersion))
 	logger.Info(fmt.Sprintf("GO Version: %v", runtime.Version()))
@@ -72,8 +71,13 @@ func NewServer(options ...Option) (*Server, error) {
 }
 
 func (s *Server) ConfigStore(configStore *config.Store) {
+	logger.Debug("setting configuration store")
 	s.configStore = configStore
 	s.config = configStore.Get()
+}
+
+func (s *Server) Parts() *Parts {
+	return s.p
 }
 
 func handleHTTPRedirect(w http.ResponseWriter, r *http.Request) {
@@ -86,14 +90,10 @@ func handleHTTPRedirect(w http.ResponseWriter, r *http.Request) {
 	http.Redirect(w, r, target, http.StatusFound)
 }
 
-func (s *Server) Parts() *Parts {
-	return s.p
-}
-
 func (s *Server) Shutdown() error {
 	logger.Info("Stopping server...")
 	if s.store != nil {
-		s.store.Close()
+		s.Store().Close()
 	}
 
 	s.StopHTTPServer()
@@ -153,10 +153,6 @@ func (s *Server) Start() error {
 	return nil
 }
 
-func (s *Server) Store() store.Store {
-	return nil
-}
-
 func stripPort(hostport string) string {
 	host, _, err := net.SplitHostPort(hostport)
 	if err != nil {
@@ -188,4 +184,8 @@ func (s *Server) StopHTTPServer() {
 		s.Server.Close()
 		s.Server = nil
 	}
+}
+
+func (s *Server) Store() store.Store {
+	return s.store
 }
