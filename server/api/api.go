@@ -41,6 +41,7 @@ func Init(srv *app.Server) (*Api, error) {
 	api.BaseRoutes.Part = api.BaseRoutes.Parts.PathPrefix("/{part_id:[A-Za-z0-9]+}").Subrouter()
 
 	api.InitParts()
+	api.InitGraphQL()
 
 	srv.Router.Handle("/api/{anything:.*}", http.HandlerFunc(api.HandleNotFound))
 

@@ -10,15 +10,16 @@ import (
 )
 
 type Context struct {
-	App           *app.App
-	AppContext    *request.Context
-	Params        *Params
-	Err           *model.AppError
-	siteUrlHeader string
+	App                  *app.App
+	AppContext           *request.Context
+	Params               *Params
+	Err                  *model.AppError
+	SiteUrlHeader        string
+	GraphQLOperationName string
 }
 
 func (c *Context) GetSiteURLHeader() string {
-	return c.siteUrlHeader
+	return c.SiteUrlHeader
 }
 
 func (c *Context) RequirePartId() *Context {
@@ -42,5 +43,5 @@ func (c *Context) SetInvalidParameterWithErr(parameter string, er error) {
 }
 
 func (c *Context) SetSiteURLHeader(url string) {
-	c.siteUrlHeader = strings.TrimRight(url, "/")
+	c.SiteUrlHeader = strings.TrimRight(url, "/")
 }

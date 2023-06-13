@@ -22,20 +22,19 @@ func NewMemPartStore(memStore *MemStore) store.PartStore {
 	return s
 }
 
-func (s MemPartStore) GetAllParts(page, pageSize int) (model.PartList, error) {
+func (s *MemPartStore) GetAllParts(page, pageSize int) (model.PartList, error) {
 	r := s.parts
 
 	return r, nil
 }
 
-func (s MemPartStore) GetAllPartsCount() (int64, error) {
-	var count int64
-	count = 0
+func (s *MemPartStore) GetAllPartsCount() (int64, error) {
+	count := (int64)(len(s.parts))
 
 	return count, nil
 }
 
-func (s MemPartStore) GetPart(partId string) (*model.Part, error) {
+func (s *MemPartStore) GetPart(partId string) (*model.Part, error) {
 	p := &model.Part{
 		Id: partId,
 	}
@@ -43,7 +42,7 @@ func (s MemPartStore) GetPart(partId string) (*model.Part, error) {
 	return p, nil
 }
 
-func (s MemPartStore) Save(part *model.Part) (*model.Part, error) {
+func (s *MemPartStore) Save(part *model.Part) (*model.Part, error) {
 	if !model.IsValidId(part.Id) {
 		part.Id = model.NewId()
 		a := append(s.parts, part)

@@ -43,6 +43,7 @@ func (fs *FileStore) Close() error {
 	return nil
 }
 
+// Read the configuration file from disk.
 func (fs *FileStore) GetFile(name string) ([]byte, error) {
 	resolvedPath := fs.resolveFilePath(name)
 
@@ -54,10 +55,12 @@ func (fs *FileStore) GetFile(name string) ([]byte, error) {
 	return data, nil
 }
 
+// Get the path for the file name provided.
 func (fs *FileStore) GetFilePath(name string) string {
 	return fs.resolveFilePath(name)
 }
 
+// Get if the file exists. Returns true if it exists, otherwise false.
 func (fs *FileStore) HasFile(name string) (bool, error) {
 	if name == "" {
 		return false, nil
@@ -93,6 +96,7 @@ func (fs *FileStore) Load() ([]byte, error) {
 	return fileBytes, nil
 }
 
+// Save the configuration to disk.
 func (fs *FileStore) persist(cfg *model.Config) error {
 	b, err := marshalConfig(cfg)
 	if err != nil {
@@ -107,6 +111,7 @@ func (fs *FileStore) persist(cfg *model.Config) error {
 	return nil
 }
 
+// Remove the file from disk.
 func (fs *FileStore) RemoveFile(name string) error {
 	if filepath.IsAbs(name) {
 		// TODO: Log skipping delete of absolute file names, as they may be mounted files.
@@ -124,6 +129,8 @@ func (fs *FileStore) RemoveFile(name string) error {
 
 	return nil
 }
+
+// Resolve the path of the configuration file.
 func resolveConfigFilePath(path string) (string, error) {
 	if filepath.IsAbs(path) {
 		return path, nil
@@ -152,10 +159,12 @@ func (fs *FileStore) resolveFilePath(name string) string {
 	return filepath.Join(filepath.Dir(fs.path), name)
 }
 
+// Save the configuration.
 func (fs *FileStore) Set(newCfg *model.Config) error {
 	return fs.persist(newCfg)
 }
 
+// Save the configuration to disk.
 func (fs *FileStore) SetFile(name string, data []byte) error {
 	resolvedPath := fs.resolveFilePath(name)
 
